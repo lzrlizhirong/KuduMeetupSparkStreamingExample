@@ -84,3 +84,5 @@ select * from kudu_meetup_rsvps limit 2;
 select * from kudu_meetup_rsvps_predictions limit 2;
 select * from kudu_meetup_rsvps_load_summary limit 2;
 ```
+
+作者github：https://github.com/silicon-valley-data-science/nwatechsummit-2015
