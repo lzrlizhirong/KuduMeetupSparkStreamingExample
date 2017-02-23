@@ -2,7 +2,7 @@ name := "kudu-meetup"
 
 version := "1.0"
 
-scalaVersion := "2.10.6"
+scalaVersion := "2.11.8"
 
 libraryDependencies += "org.apache.spark" %% "spark-sql" % "1.5.1"
 libraryDependencies += "org.apache.spark" %% "spark-mllib" % "1.5.1"

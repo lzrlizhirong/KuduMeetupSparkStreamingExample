@@ -11,26 +11,27 @@ import org.kududb.{Schema, ColumnSchema, Type}
 import scala.collection.mutable
 
 /**
- * DefaultSource for integration with Spark's dataframe datasources.
- * This class with produce a relationProvider based on input give to it from spark
- *
- * In all this DefaultSource support the following datasource functionality
- * - Scan range pruning through filter push down logic based on rowKeys
- * - Filter push down logic on columns that are not rowKey columns
- * - Qualifier filtering based on columns used in the SparkSQL statement
- * - Type conversions of basic SQL types
- */
+  * DefaultSource for integration with Spark's dataframe datasources.
+  * This class with produce a relationProvider based on input give to it from spark
+  *
+  * In all this DefaultSource support the following datasource functionality
+  * - Scan range pruning through filter push down logic based on rowKeys
+  * - Filter push down logic on columns that are not rowKey columns
+  * - Qualifier filtering based on columns used in the SparkSQL statement
+  * - Type conversions of basic SQL types
+  */
 class DefaultSource extends RelationProvider {
 
-  val TABLE_KEY:String = "kudu.table"
-  val KUDU_MASTER:String = "kudu.master"
+  val TABLE_KEY: String = "kudu.table"
+  val KUDU_MASTER: String = "kudu.master"
 
   /**
-   * Is given input from SparkSQL to construct a BaseRelation
-   * @param sqlContext SparkSQL context
-   * @param parameters Parameters given to us from SparkSQL
-   * @return           A BaseRelation Object
-   */
+    * Is given input from SparkSQL to construct a BaseRelation
+    *
+    * @param sqlContext SparkSQL context
+    * @param parameters Parameters given to us from SparkSQL
+    * @return A BaseRelation Object
+    */
   override def createRelation(sqlContext: SQLContext,
                               parameters: Map[String, String]):
   BaseRelation = {
@@ -38,7 +39,7 @@ class DefaultSource extends RelationProvider {
 
     val tableName = parameters.get(TABLE_KEY)
     if (tableName.isEmpty)
-      new Throwable("Invalid value for " + TABLE_KEY +" '" + tableName + "'")
+      new Throwable("Invalid value for " + TABLE_KEY + " '" + tableName + "'")
 
     val kuduMaster = parameters.getOrElse(KUDU_MASTER, "")
 
@@ -47,16 +48,16 @@ class DefaultSource extends RelationProvider {
 }
 
 /**
- * Implementation of Spark BaseRelation that will build up our scan logic
- * , do the scan pruning, filter push down, and value conversions
- *
- * @param tableName               Kudu table that we plan to read from
- * @param kuduMaster              Kudu master definition
- * @param sqlContext              SparkSQL context
- */
-class KuduRelation (val tableName:String,
-                     val kuduMaster: String) (
-  @transient val sqlContext:SQLContext)
+  * Implementation of Spark BaseRelation that will build up our scan logic
+  * , do the scan pruning, filter push down, and value conversions
+  *
+  * @param tableName  Kudu table that we plan to read from
+  * @param kuduMaster Kudu master definition
+  * @param sqlContext SparkSQL context
+  */
+class KuduRelation(val tableName: String,
+                   val kuduMaster: String)(
+                    @transient val sqlContext: SQLContext)
   extends BaseRelation with PrunedFilteredScan with Logging with Serializable {
 
   //create or get latest HBaseContext
@@ -76,7 +77,7 @@ class KuduRelation (val tableName:String,
     kuduSchemaColumnMap
   }
 
-  def buildKuduSchemaColumnMap(kuduSchema:Schema): mutable.HashMap[String, ColumnSchema] = {
+  def buildKuduSchemaColumnMap(kuduSchema: Schema): mutable.HashMap[String, ColumnSchema] = {
 
     var kuduSchemaColumnMap = new mutable.HashMap[String, ColumnSchema]()
 
@@ -89,11 +90,11 @@ class KuduRelation (val tableName:String,
   }
 
   /**
-   * Generates a Spark SQL schema object so Spark SQL knows what is being
-   * provided by this BaseRelation
-   *
-   * @return schema generated from the SCHEMA_COLUMNS_MAPPING_KEY value
-   */
+    * Generates a Spark SQL schema object so Spark SQL knows what is being
+    * provided by this BaseRelation
+    *
+    * @return schema generated from the SCHEMA_COLUMNS_MAPPING_KEY value
+    */
   override def schema: StructType = {
 
     val metadataBuilder = new MetadataBuilder()
@@ -129,17 +130,17 @@ class KuduRelation (val tableName:String,
   }
 
   /**
-   * Here we are building the functionality to populate the resulting RDD[Row]
-   * Here is where we will do the following:
-   * - Filter push down
-   * - Scan or GetList pruning
-   * - Executing our scan(s) or/and GetList to generate result
-   *
-   * @param requiredColumns The columns that are being requested by the requesting query
-   * @param filters         The filters that are being applied by the requesting query
-   * @return                RDD will all the results from HBase needed for SparkSQL to
-   *                        execute the query on
-   */
+    * Here we are building the functionality to populate the resulting RDD[Row]
+    * Here is where we will do the following:
+    * - Filter push down
+    * - Scan or GetList pruning
+    * - Executing our scan(s) or/and GetList to generate result
+    *
+    * @param requiredColumns The columns that are being requested by the requesting query
+    * @param filters         The filters that are being applied by the requesting query
+    * @return RDD will all the results from HBase needed for SparkSQL to
+    *         execute the query on
+    */
   override def buildScan(requiredColumns: Array[String], filters: Array[Filter]): RDD[Row] = {
 
     //retain the information for unit testing checks
@@ -149,7 +150,7 @@ class KuduRelation (val tableName:String,
 
       val strBuilder = new StringBuilder()
       var isFirst = true
-      requiredColumns.foreach( c => {
+      requiredColumns.foreach(c => {
         if (isFirst) isFirst = false
         else strBuilder.append(",")
         strBuilder.append(c)
@@ -162,13 +163,12 @@ class KuduRelation (val tableName:String,
           getKuduValue(c, rowResults)))
       })
 
-      resultRDD=rdd
+      resultRDD = rdd
     }
     resultRDD
   }
 
-  def getKuduValue(columnName:String, row:RowResult): Any = {
-
+  def getKuduValue(columnName: String, row: RowResult): Any = {
 
 
     val columnSchema = getKuduSchemaColumnMap.getOrElse(columnName, null)

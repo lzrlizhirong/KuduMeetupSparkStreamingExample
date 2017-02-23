@@ -13,7 +13,7 @@ object KuduMeetupParquetLoad {
     val conf = new SparkConf().setAppName("Load meetup parquet")
     val sc = new SparkContext(conf)
     val sqlContext = new SQLContext(sc)
-    sqlContext.setConf("spark.sql.parquet.compression.codec","snappy")
+    sqlContext.setConf("spark.sql.parquet.compression.codec", "snappy")
     val meetup = sqlContext.jsonFile(inputFile)
     meetup.saveAsParquetFile(parquetPath)
   }

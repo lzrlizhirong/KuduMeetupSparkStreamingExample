@@ -7,7 +7,7 @@ import org.kududb.ColumnSchema.ColumnSchemaBuilder
 import org.kududb.client.{PartialRow, CreateTableBuilder, KuduClient}
 
 object CreateMeetupKuduTable {
-  def main(args:Array[String]): Unit = {
+  def main(args: Array[String]): Unit = {
     if (args.length == 0) {
       println("{kuduMaster} {tableName}")
       return

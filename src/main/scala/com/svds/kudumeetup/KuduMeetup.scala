@@ -37,10 +37,10 @@ object KuduMeetup {
         kuduRow.addString(field, value)
       case _ =>
         Try(kuduRow.setNull(field)) orElse
-        Try(kuduRow.addInt(field, 0)) orElse
-        Try(kuduRow.addLong(field, 0)) orElse
-        Try(kuduRow.addDouble(field, 0)) orElse
-        Try(kuduRow.addString(field, ""))
+          Try(kuduRow.addInt(field, 0)) orElse
+          Try(kuduRow.addLong(field, 0)) orElse
+          Try(kuduRow.addDouble(field, 0)) orElse
+          Try(kuduRow.addString(field, ""))
     }
   }
 

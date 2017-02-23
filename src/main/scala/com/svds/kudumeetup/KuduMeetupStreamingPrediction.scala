@@ -29,6 +29,7 @@ object KuduMeetupStreamingPrediction {
       ssc, kafkaParams, topicsSet)
     messages.map(_._2)
   }
+
   def main(args: Array[String]) {
     Logger.getLogger("org").setLevel(Level.WARN)
     Logger.getLogger("akka").setLevel(Level.WARN)
@@ -59,9 +60,9 @@ object KuduMeetupStreamingPrediction {
     }
     stream.print()
 
-    val actl_stream = stream.map(x => LabeledPoint(x(1).toString.toDouble, Vectors.dense(Array(1.0,x(0).toString.toDouble))) ).cache()
+    val actl_stream = stream.map(x => LabeledPoint(x(1).toString.toDouble, Vectors.dense(Array(1.0, x(0).toString.toDouble)))).cache()
     actl_stream.print()
-    val pred_stream = stream.map(x => LabeledPoint((x(2).toString.toDouble+10)*60000, Vectors.dense(Array(1.0,x(0).toString.toDouble))) )
+    val pred_stream = stream.map(x => LabeledPoint((x(2).toString.toDouble + 10) * 60000, Vectors.dense(Array(1.0, x(0).toString.toDouble))))
     pred_stream.print()
 
     model.trainOn(actl_stream)
@@ -78,7 +79,7 @@ object KuduMeetupStreamingPrediction {
 
         val operation = table.newInsert()
         val row = operation.getRow
-        row.addLong("time", metadata(2).toString.toDouble.toLong*60000)
+        row.addLong("time", metadata(2).toString.toDouble.toLong * 60000)
         row.addDouble("rsvp_cnt", metadata(1).toString.toDouble)
         session.apply(operation)
         upserts += 1

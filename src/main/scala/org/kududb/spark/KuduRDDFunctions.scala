@@ -23,56 +23,56 @@ import org.kududb.client._
 import scala.reflect.ClassTag
 
 /**
- * HBaseRDDFunctions contains a set of implicit functions that can be
- * applied to a Spark RDD so that we can easily interact with HBase
- */
-object KuduRDDFunctions
-{
+  * HBaseRDDFunctions contains a set of implicit functions that can be
+  * applied to a Spark RDD so that we can easily interact with HBase
+  */
+object KuduRDDFunctions {
 
   /**
-   * These are implicit methods for a RDD that contains any type of
-   * data.
-   *
-   * @param rdd This is for rdd of any type
-   * @tparam T  This is any type
-   */
+    * These are implicit methods for a RDD that contains any type of
+    * data.
+    *
+    * @param rdd This is for rdd of any type
+    * @tparam T This is any type
+    */
   implicit class GenericHBaseRDDFunctions[T](val rdd: RDD[T]) {
 
 
     /**
-     * Implicit method that gives easy access to HBaseContext's
-     * foreachPartition method.  This will ack very much like a normal RDD
-     * foreach method but for the fact that you will now have a HBase connection
-     * while iterating through the values.
-     *
-     * @param kc  The hbaseContext object to identify which HBase
-     *            cluster connection to use
-     * @param f   This function will get an iterator for a Partition of an
-     *            RDD along with a connection object to HBase
-     */
+      * Implicit method that gives easy access to HBaseContext's
+      * foreachPartition method.  This will ack very much like a normal RDD
+      * foreach method but for the fact that you will now have a HBase connection
+      * while iterating through the values.
+      *
+      * @param kc The hbaseContext object to identify which HBase
+      *           cluster connection to use
+      * @param f  This function will get an iterator for a Partition of an
+      *           RDD along with a connection object to HBase
+      */
     def hbaseForeachPartition(kc: KuduContext,
                               f: (Iterator[T], KuduClient, AsyncKuduClient) => Unit): Unit = {
       kc.foreachPartition(rdd, f)
     }
 
     /**
-     * Implicit method that gives easy access to HBaseContext's
-     * mapPartitions method.  This will ask very much like a normal RDD
-     * map partitions method but for the fact that you will now have a
-     * HBase connection while iterating through the values
-     *
-     * @param kc  The kuduContext object to identify which HBase
-     *            cluster connection to use
-     * @param f   This function will get an iterator for a Partition of an
-     *            RDD along with a connection object to HBase
-     * @tparam R  This is the type of objects that will go into the resulting
-     *            RDD
-     * @return    A resulting RDD of type R
-     */
+      * Implicit method that gives easy access to HBaseContext's
+      * mapPartitions method.  This will ask very much like a normal RDD
+      * map partitions method but for the fact that you will now have a
+      * HBase connection while iterating through the values
+      *
+      * @param kc The kuduContext object to identify which HBase
+      *           cluster connection to use
+      * @param f  This function will get an iterator for a Partition of an
+      *           RDD along with a connection object to HBase
+      * @tparam R This is the type of objects that will go into the resulting
+      *           RDD
+      * @return A resulting RDD of type R
+      */
     def hbaseMapPartitions[R: ClassTag](kc: KuduContext,
                                         f: (Iterator[T], KuduClient, AsyncKuduClient) => Iterator[R]):
     RDD[R] = {
-      kc.mapPartitions[T,R](rdd, f)
+      kc.mapPartitions[T, R](rdd, f)
     }
   }
+
 }
